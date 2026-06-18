@@ -1,0 +1,22 @@
+{
+  "name": "fit4110-lab04-analytics-docker-packaging",
+  "version": "0.1.0",
+  "description": "FIT4110 Lab 04 - Docker packaging and Newman verification for Smart Campus Analytics",
+  "private": true,
+  "scripts": {
+    "mock:analytics": "prism mock contracts/analytics.openapi.yaml --host 0.0.0.0 --port 4010",
+    "mock:vision": "prism mock contracts/ai-vision.openapi.yaml --host 0.0.0.0 --port 4011",
+    "mock:all": "npm-run-all --parallel mock:analytics mock:vision",
+    "lint:openapi": "spectral lint contracts/*.yaml",
+    "test:mock": "newman run \"postman/collections/Analytics_API.postman_collection.json\" -e \"postman/environments/Analytics Mock.postman_environment.json\" -r cli,junit,htmlextra --reporter-junit-export reports/newman-lab04-mock.xml --reporter-htmlextra-export reports/newman-lab04-mock.html",
+    "test:local": "newman run \"postman/collections/Analytics_API.postman_collection.json\" -e \"postman/environments/Analytics Local.postman_environment.json\" -r cli,junit,htmlextra --reporter-junit-export reports/newman-lab04-local.xml --reporter-htmlextra-export reports/newman-lab04-local.html"
+  },
+  "devDependencies": {
+    "@stoplight/prism-cli": "^5.10.0",
+    "@stoplight/spectral-cli": "^6.13.1",
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1",
+    "npm-run-all": "^4.1.5",
+    "wait-on": "^8.0.1"
+  }
+}

@@ -1,0 +1,243 @@
+openapi: 3.1.0
+
+info:
+  title: Smart Campus AI Vision API
+  version: 1.0.0
+  description: |
+    AI Vision service for Smart Campus.
+    This mock supports consumer-side smoke tests for Camera and Core.
+  contact:
+    name: FIT4110 Lab 03 Team
+    email: fit4110@example.com
+
+servers:
+  - url: http://localhost:4011
+    description: Local AI Vision Service
+
+tags:
+  - name: Health
+  - name: Detections
+  - name: Models
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Health check
+      description: Returns service health information for the AI Vision service.
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+              example:
+                status: ok
+                service: ai-vision
+                time: '2019-08-24T14:15:22Z'
+
+  /detect:
+    post:
+      tags: [Detections]
+      operationId: detectImage
+      summary: Detect objects in an image
+      description: Accepts an image URL or base64 payload and returns the primary detection result.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectRequest'
+            examples:
+              imageUrl:
+                summary: Detect from image URL
+                value:
+                  camera_id: CAM01
+                  image_url: https://example.com/frame.jpg
+              base64:
+                summary: Detect from base64 image
+                value:
+                  camera_id: CAM01
+                  image_base64: iVBORw0KGgoAAAANSUhEUgAA
+      responses:
+        '200':
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResult'
+              example:
+                detection_id: DET001
+                label: person
+                confidence: 0.91
+                risk_level: medium
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /detections/{id}:
+    get:
+      tags: [Detections]
+      operationId: getDetectionById
+      summary: Get detection by id
+      description: Returns a previously generated detection result.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResult'
+              example:
+                detection_id: DET001
+                label: person
+                confidence: 0.91
+                risk_level: medium
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /models/info:
+    get:
+      tags: [Models]
+      operationId: getModelInfo
+      summary: Get model information
+      description: Returns model metadata used by the AI Vision service.
+      responses:
+        '200':
+          description: Model metadata
+          headers:
+            Cache-Control:
+              description: Cache hint for clients
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfo'
+              example:
+                model_id: vision-v1
+                model_name: SmartCampus Vision Detector
+                version: 1.0.0
+                updated_at: '2019-08-24T14:15:22Z'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: invalid_request
+            message: Request body is invalid.
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: not_found
+            message: Detection not found.
+
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+        - time
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+        time:
+          type: string
+          format: date-time
+
+    DetectRequest:
+      type: object
+      required:
+        - camera_id
+      properties:
+        camera_id:
+          type: string
+          example: CAM01
+        image_url:
+          type: string
+          format: uri
+        image_base64:
+          type: string
+      anyOf:
+        - required: [image_url]
+        - required: [image_base64]
+
+    DetectionResult:
+      type: object
+      required:
+        - detection_id
+        - label
+        - confidence
+        - risk_level
+      properties:
+        detection_id:
+          type: string
+        label:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        risk_level:
+          type: string
+          enum: [low, medium, high]
+
+    ModelInfo:
+      type: object
+      required:
+        - model_id
+        - model_name
+        - version
+        - updated_at
+      properties:
+        model_id:
+          type: string
+        model_name:
+          type: string
+        version:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string

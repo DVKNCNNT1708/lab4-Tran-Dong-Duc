@@ -1,0 +1,1151 @@
+{
+  "info": {
+    "_postman_id": "673a25a2-3661-4db0-a2c2-decbdf11af9d",
+    "name": "Smart Campus Analytics API - Lab04 Docker Verification",
+    "description": "Lab 04 Newman collection reused from Lab 03 Analytics API and tightened for Docker container verification.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55021220",
+    "_collection_link": "https://go.postman.co/collection/55021220-673a25a2-3661-4db0-a2c2-decbdf11af9d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Returns service health information for the analytics service.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "Service healthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "description": "Added as a part of security scheme: bearer",
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"string\",\n  \"time\": \"1990-03-06T10:23:54.228Z\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Health response has status ok\", function () { const json = pm.response.json(); pm.expect(json.status).to.eql(\"ok\"); });",
+                  "pm.test(\"Health response identifies analytics service\", function () { const json = pm.response.json(); pm.expect(json.service).to.eql(\"analytics\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ingest",
+      "item": [
+        {
+          "name": "Ingest event from external services",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"string\",\n  \"deviceId\": \"string\",\n  \"metric\": \"power\",\n  \"value\": 4794.612482912158,\n  \"occurredAt\": \"1950-02-07T17:56:31.442Z\",\n  \"unit\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "description": "Accepts a cross-service event payload for analytics ingestion."
+          },
+          "response": [
+            {
+              "name": "Event accepted",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "description": "Added as a part of security scheme: bearer",
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sourceType\": \"string\",\n  \"deviceId\": \"string\",\n  \"metric\": \"power\",\n  \"value\": 4794.612482912158,\n  \"occurredAt\": \"1950-02-07T17:56:31.442Z\",\n  \"unit\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/ingest",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ingest"
+                  ]
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"ACCEPTED\",\n  \"acceptedAt\": \"1989-04-23T03:00:53.523Z\"\n}"
+            },
+            {
+              "name": "Invalid request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/problem+json"
+                  },
+                  {
+                    "description": "Added as a part of security scheme: bearer",
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sourceType\": \"string\",\n  \"deviceId\": \"string\",\n  \"metric\": \"power\",\n  \"value\": 4794.612482912158,\n  \"occurredAt\": \"1950-02-07T17:56:31.442Z\",\n  \"unit\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/ingest",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ingest"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"title\": \"string\",\n  \"status\": 7438,\n  \"detail\": null\n}"
+            },
+            {
+              "name": "Internal server error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/problem+json"
+                  },
+                  {
+                    "description": "Added as a part of security scheme: bearer",
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sourceType\": \"string\",\n  \"deviceId\": \"string\",\n  \"metric\": \"power\",\n  \"value\": 4794.612482912158,\n  \"occurredAt\": \"1950-02-07T17:56:31.442Z\",\n  \"unit\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/ingest",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ingest"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"title\": \"string\",\n  \"status\": 7438,\n  \"detail\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "analytics",
+      "item": [
+        {
+          "name": "summary",
+          "item": [
+            {
+              "name": "Get analytics summary",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/analytics/summary?sourceType=camera&fromDate=1972-09-08&toDate=1972-09-08",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "analytics",
+                    "summary"
+                  ],
+                  "query": [
+                    {
+                      "key": "sourceType",
+                      "value": "camera"
+                    },
+                    {
+                      "key": "fromDate",
+                      "value": "1972-09-08"
+                    },
+                    {
+                      "key": "toDate",
+                      "value": "1972-09-08"
+                    }
+                  ]
+                },
+                "description": "Returns aggregated analytics metrics for the requested time window."
+              },
+              "response": [
+                {
+                  "name": "Analytics summary",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "description": "Added as a part of security scheme: bearer",
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/analytics/summary?sourceType=camera&fromDate=1972-09-08&toDate=1972-09-08",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "analytics",
+                        "summary"
+                      ],
+                      "query": [
+                        {
+                          "key": "sourceType",
+                          "value": "camera"
+                        },
+                        {
+                          "key": "fromDate",
+                          "value": "1972-09-08"
+                        },
+                        {
+                          "key": "toDate",
+                          "value": "1972-09-08"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"totalEvents\": 3032,\n  \"totalAlerts\": 8343,\n  \"generatedAt\": \"2022-07-19T00:10:04.388Z\",\n  \"denyRate\": 2943.214417532506,\n  \"averageConfidence\": 7378.296822992204,\n  \"topCamera\": null\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dashboard",
+      "item": [
+        {
+          "name": "Dashboard data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "description": "Returns dashboard cards for the analytics portal."
+          },
+          "response": [
+            {
+              "name": "Dashboard response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "description": "Added as a part of security scheme: bearer",
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "dashboard"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"generatedAt\": \"1947-09-13T16:07:52.547Z\",\n  \"cards\": [\n    {\n      \"key\": \"string\",\n      \"label\": \"string\",\n      \"value\": 1963.1339315598084,\n      \"unit\": null\n    },\n    {\n      \"key\": \"string\",\n      \"label\": \"string\",\n      \"value\": 5667.547111865435,\n      \"unit\": \"string\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01_Functional",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Health response has status ok\", function () { const json = pm.response.json(); pm.expect(json.status).to.eql(\"ok\"); });",
+                  "pm.test(\"Health response identifies analytics service\", function () { const json = pm.response.json(); pm.expect(json.service).to.eql(\"analytics\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Analytics Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Summary has required metrics\", function () { const json = pm.response.json(); pm.expect(json).to.have.property(\"totalEvents\"); pm.expect(json).to.have.property(\"totalAlerts\"); pm.expect(json).to.have.property(\"generatedAt\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/summary?fromDate=2026-05-01&toDate=2026-05-25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "fromDate",
+                  "value": "2026-05-01"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2026-05-25"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Dashboard loaded\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Dashboard has cards\", function () { const json = pm.response.json(); pm.expect(json.cards).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Ingest Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 202\", function () { pm.response.to.have.status(202); });",
+                  "pm.test(\"Response accepted\", function () { const json = pm.response.json(); pm.expect(json.status).to.eql(\"ACCEPTED\"); pm.expect(json).to.have.property(\"acceptedAt\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 0.95,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02_Auth",
+      "item": [
+        {
+          "name": "POST Ingest Missing Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"mock\") {",
+                  "    pm.test(\"Mock may not enforce auth\", function () { pm.expect([200, 202, 401, 403]).to.include(pm.response.code); });",
+                  "} else {",
+                  "    pm.test(\"Missing token returns 401\", function () { pm.response.to.have.status(401); });",
+                  "    function assertProblemDetails() {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property(\"type\");",
+                  "        pm.expect(json).to.have.property(\"title\");",
+                  "        pm.expect(json).to.have.property(\"status\");",
+                  "        pm.expect(json.status).to.be.within(400, 599);",
+                  "        pm.expect(json).to.have.property(\"detail\");",
+                  "    }",
+                  "    assertProblemDetails();",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 0.95,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Ingest Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"mock\") {",
+                  "    pm.test(\"Mock may not enforce auth\", function () { pm.expect([200, 202, 401, 403]).to.include(pm.response.code); });",
+                  "} else {",
+                  "    pm.test(\"Invalid token returns 401\", function () { pm.response.to.have.status(401); });",
+                  "    function assertProblemDetails() {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property(\"type\");",
+                  "        pm.expect(json).to.have.property(\"title\");",
+                  "        pm.expect(json).to.have.property(\"status\");",
+                  "        pm.expect(json.status).to.be.within(400, 599);",
+                  "        pm.expect(json).to.have.property(\"detail\");",
+                  "    }",
+                  "    assertProblemDetails();",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "WRONG_TOKEN",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 0.95,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03_Negative",
+      "item": [
+        {
+          "name": "Missing Required Field",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 0.95,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"mock\") {",
+                  "    pm.test(\"Mock response is documented\", function () { pm.expect([202, 400, 422]).to.include(pm.response.code); });",
+                  "} else {",
+                  "    pm.test(\"Missing required field returns 400\", function () { pm.response.to.have.status(400); });",
+                  "    function assertProblemDetails() {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property(\"type\");",
+                  "        pm.expect(json).to.have.property(\"title\");",
+                  "        pm.expect(json).to.have.property(\"status\");",
+                  "        pm.expect(json.status).to.be.within(400, 599);",
+                  "        pm.expect(json).to.have.property(\"detail\");",
+                  "    }",
+                  "    assertProblemDetails();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Payload Type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"mock\") {",
+                  "    pm.test(\"Mock response is documented\", function () { pm.expect([202, 400, 422]).to.include(pm.response.code); });",
+                  "} else {",
+                  "    pm.test(\"Wrong data type returns 400\", function () { pm.response.to.have.status(400); });",
+                  "    function assertProblemDetails() {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property(\"type\");",
+                  "        pm.expect(json).to.have.property(\"title\");",
+                  "        pm.expect(json).to.have.property(\"status\");",
+                  "        pm.expect(json.status).to.be.within(400, 599);",
+                  "        pm.expect(json).to.have.property(\"detail\");",
+                  "    }",
+                  "    assertProblemDetails();",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": \"HIGH\",\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04_Boundary_Reliability",
+      "item": [
+        {
+          "name": "Confidence Equals 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 1,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:05:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Boundary confidence 1 is accepted\", function () { pm.response.to.have.status(202); });",
+                  "pm.test(\"Response accepted\", function () { const json = pm.response.json(); pm.expect(json.status).to.eql(\"ACCEPTED\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confidence Greater Than 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ingest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingest"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"camera\",\n  \"detectionId\": \"550e8400-e29b-41d4-a716-446655440002\",\n  \"detectionType\": \"PERSON\",\n  \"confidence\": 1.01,\n  \"cameraId\": \"CAM-01\",\n  \"occurredAt\": \"2026-05-25T10:10:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"mock\") {",
+                  "    pm.test(\"Mock response is documented\", function () { pm.expect([202, 400, 422]).to.include(pm.response.code); });",
+                  "} else {",
+                  "    pm.test(\"Boundary confidence greater than 1 returns 400\", function () { pm.response.to.have.status(400); });",
+                  "    function assertProblemDetails() {",
+                  "        const json = pm.response.json();",
+                  "        pm.expect(json).to.have.property(\"type\");",
+                  "        pm.expect(json).to.have.property(\"title\");",
+                  "        pm.expect(json).to.have.property(\"status\");",
+                  "        pm.expect(json.status).to.be.within(400, 599);",
+                  "        pm.expect(json).to.have.property(\"detail\");",
+                  "    }",
+                  "    assertProblemDetails();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05_Consumer_side_Smoke",
+      "item": [
+        {
+          "name": "AI Vision Mock",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{aiVisionMockUrl}}/health",
+              "host": [
+                "{{aiVisionMockUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"AI Vision compatible health endpoint is reachable\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Health response has status ok\", function () { const json = pm.response.json(); pm.expect(json.status).to.eql(\"ok\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06_Local_only_NonFunctional",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Dashboard loaded\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Dashboard has cards\", function () { const json = pm.response.json(); pm.expect(json.cards).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4010"
+    }
+  ]
+}

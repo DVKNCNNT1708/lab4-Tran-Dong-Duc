@@ -1,0 +1,546 @@
+openapi: 3.1.0
+
+info:
+  title: Smart Campus Analytics API
+  version: 2.0.0
+  description: |
+    Analytics Service for Smart Campus.
+    Service này nhận event từ:
+      - A3 Access Gate
+      - A4 AI Vision
+      - A6 Core Business
+  contact:
+    name: FIT4110 Lab 02 Team
+    email: fit4110@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Dockerized Analytics Service
+  - url: http://localhost:4010
+    description: Prism mock Analytics Service
+
+tags:
+  - name: Health
+  - name: Ingest
+  - name: Analytics
+  - name: Dashboard
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Health check
+      description: Returns service health information for the analytics service.
+
+      security: []
+
+      responses:
+        '200':
+          description: Service healthy
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /ingest:
+    post:
+      tags: [Ingest]
+      operationId: ingestEvent
+      summary: Ingest event from external services
+      description: Accepts a cross-service event payload for analytics ingestion.
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestEvent'
+
+      responses:
+        '202':
+          description: Event accepted
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestAccepted'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/summary:
+    get:
+      tags: [Analytics]
+      operationId: getAnalyticsSummary
+      summary: Get analytics summary
+      description: Returns aggregated analytics metrics for the requested time window.
+
+      parameters:
+        - name: sourceType
+          in: query
+          required: false
+
+          schema:
+            type: string
+            enum:
+              - access
+              - camera
+              - core-business
+              - iot
+
+        - name: fromDate
+          in: query
+          required: true
+
+          schema:
+            type: string
+            format: date
+
+        - name: toDate
+          in: query
+          required: true
+
+          schema:
+            type: string
+            format: date
+
+      responses:
+        '200':
+          description: Analytics summary
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSummary'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboard
+      summary: Dashboard data
+      description: Returns dashboard cards for the analytics portal.
+
+      responses:
+        '200':
+          description: Dashboard response
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+
+    BadRequest:
+      description: Invalid request
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    Unauthorized:
+      description: Missing or invalid bearer token
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    InternalServerError:
+      description: Internal server error
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+  schemas:
+
+    HealthStatus:
+      type: object
+
+      required:
+        - status
+        - service
+        - time
+
+      properties:
+
+        status:
+          type: string
+          enum:
+            - ok
+
+        service:
+          type: string
+
+        time:
+          type: string
+          format: date-time
+
+    IngestEvent:
+
+      oneOf:
+        - $ref: '#/components/schemas/AccessIngestEvent'
+        - $ref: '#/components/schemas/CameraIngestEvent'
+        - $ref: '#/components/schemas/CoreBusinessIngestEvent'
+        - $ref: '#/components/schemas/IotIngestEvent'
+
+      discriminator:
+        propertyName: sourceType
+
+        mapping:
+          access: '#/components/schemas/AccessIngestEvent'
+          camera: '#/components/schemas/CameraIngestEvent'
+          core-business: '#/components/schemas/CoreBusinessIngestEvent'
+          iot: '#/components/schemas/IotIngestEvent'
+
+    AccessIngestEvent:
+      type: object
+
+      additionalProperties: false
+
+      required:
+        - sourceType
+        - eventId
+        - gateId
+        - decision
+        - occurredAt
+
+      properties:
+
+        sourceType:
+          type: string
+          const: access
+
+        eventId:
+          type: string
+          format: uuid
+
+        gateId:
+          type: string
+
+        cardId:
+          type: string
+
+        direction:
+          type: string
+
+          enum:
+            - IN
+            - OUT
+
+        decision:
+          type: string
+
+          enum:
+            - ALLOW
+            - DENY
+
+        occurredAt:
+          type: string
+          format: date-time
+
+    CameraIngestEvent:
+      type: object
+
+      additionalProperties: false
+
+      required:
+        - sourceType
+        - detectionId
+        - detectionType
+        - confidence
+        - cameraId
+        - occurredAt
+
+      properties:
+
+        sourceType:
+          type: string
+          const: camera
+
+        detectionId:
+          type: string
+          format: uuid
+
+        detectionType:
+          type: string
+
+          enum:
+            - PERSON
+            - VEHICLE
+            - UNKNOWN_OBJECT
+
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+        cameraId:
+          type: string
+
+        trackingId:
+          type:
+            - string
+            - 'null'
+
+        occurredAt:
+          type: string
+          format: date-time
+
+    CoreBusinessIngestEvent:
+      type: object
+
+      additionalProperties: false
+
+      required:
+        - sourceType
+        - businessEventId
+        - eventType
+        - severity
+        - status
+        - occurredAt
+
+      properties:
+
+        sourceType:
+          type: string
+          const: core-business
+
+        businessEventId:
+          type: string
+          format: uuid
+
+        eventType:
+          type: string
+
+          enum:
+            - VISION_DETECTION
+            - ACCESS_DENIED
+            - UNAUTHORIZED_ACCESS
+            - SECURITY_INTRUSION
+            - NOTIFICATION_FAILURE
+
+        severity:
+          type: string
+
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - CRITICAL
+
+        status:
+          type: string
+
+          enum:
+            - OPEN
+            - RESOLVED
+            - FAILED
+            - IGNORED
+
+        gateId:
+          type:
+            - string
+            - 'null'
+
+        cameraId:
+          type:
+            - string
+            - 'null'
+
+        occurredAt:
+          type: string
+          format: date-time
+
+    IotIngestEvent:
+      type: object
+
+      additionalProperties: false
+
+      required:
+        - sourceType
+        - deviceId
+        - metric
+        - value
+        - occurredAt
+
+      properties:
+
+        sourceType:
+          type: string
+          const: iot
+
+        deviceId:
+          type: string
+
+        metric:
+          type: string
+
+          enum:
+            - temperature
+            - humidity
+            - occupancy
+            - power
+
+        value:
+          type: number
+
+        unit:
+          type: string
+
+        occurredAt:
+          type: string
+          format: date-time
+
+    IngestAccepted:
+      type: object
+
+      required:
+        - status
+        - acceptedAt
+
+      properties:
+
+        status:
+          type: string
+          enum:
+            - ACCEPTED
+
+        acceptedAt:
+          type: string
+          format: date-time
+
+    AnalyticsSummary:
+      type: object
+
+      required:
+        - totalEvents
+        - totalAlerts
+        - generatedAt
+
+      properties:
+
+        totalEvents:
+          type: integer
+
+        totalAlerts:
+          type: integer
+
+        denyRate:
+          type: number
+
+        averageConfidence:
+          type: number
+
+        topCamera:
+          type:
+            - string
+            - 'null'
+
+        generatedAt:
+          type: string
+          format: date-time
+
+    DashboardResponse:
+      type: object
+
+      required:
+        - generatedAt
+        - cards
+
+      properties:
+
+        generatedAt:
+          type: string
+          format: date-time
+
+        cards:
+          type: array
+
+          items:
+            $ref: '#/components/schemas/DashboardCard'
+
+    DashboardCard:
+      type: object
+
+      required:
+        - key
+        - label
+        - value
+
+      properties:
+
+        key:
+          type: string
+
+        label:
+          type: string
+
+        value:
+          type: number
+
+        unit:
+          type:
+            - string
+            - 'null'
+
+    ProblemDetails:
+      type: object
+
+      required:
+        - type
+        - title
+        - status
+        - detail
+
+      properties:
+
+        type:
+          type: string
+
+        title:
+          type: string
+
+        status:
+          type: integer
+
+        detail:
+          type: string
+
+        instance:
+          type:
+            - string
+            - 'null'
